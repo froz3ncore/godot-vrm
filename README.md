@@ -1,3 +1,19 @@
+### Description (概述)
+This PR fixes the compatibility issues with **Godot 4.6+** caused by stricter dictionary and utility function bindings in `GLTFState`. 
+本 PR 修复了由于 Godot 4.6+ 对 `GLTFState` 字典键值以及 `get()` 方法更严格的校验所导致的插件瘫痪问题。
+
+### Changes (具体修改)
+1. **`vrm_extension.gd` & `1.0/VRMC_vrm.gd`**: 
+   - Replaced the unsafe `typeof(gstate.get_additional_data(...)) != TYPE_NIL` checks with a safe two-step `gstate.get()` property fetching method. 
+   - 将原本不安全的 `typeof(gstate.get_additional_data(...)) != TYPE_NIL` 检查修改为了单参数安全的 `gstate.get()` 分步获取法。在 Godot 4.6 中，直接对方括号或未初始化的键进行底层读取会导致 `Dictionary::operator[]` C++ 崩溃。
+2. **Method Signatures**:
+   - Fixed missing return type hints (`-> void`) for private setup functions to satisfy the stricter GDScript parser in Godot 4.6.
+   - 补全了部分自定义函数的 `-> void` 返回值注解，以通过 Godot 4.6 更严格的 GDScript 语法编译器。
+
+### Test Result (测试结果)
+Tested with a VRM 1.0 model (`.vrm`) in **Godot v4.6.stable.official**. The `Dictionary::operator[] used when there was no value` error is completely resolved, and the avatar can now be imported and fully generated into the scene without any built-in script parse errors.
+已在 **Godot v4.6.stable.official** 环境下使用 VRM 1.0 模型进行完整导入测试。之前导致插件完全无法加载的 `Parse Error` 以及运行时的 `Dictionary::operator[]` 错误已被彻底清除，模型可以正常生成并载入 3D 场景。
+
 - [日本語](README.ja.md)
 
 # VRM addon for Godot Engine
